@@ -1,0 +1,263 @@
+import java.util.Arrays;
+
+public class ManagementCompany {
+	private String name;
+	private String taxID;
+	private double mgmFeePer;
+	private final int MAX_PROPERTY = 5;
+	private Property[] properties;
+	private final int MGMT_WIDTH = 10;
+	private final int MGMT_DEPTH = 10;
+	private Plot plot;
+	private int count;
+	
+	//No-Arg Constructor that creates a ManagementCompany object using empty strings and the plot set to a Plot with x, y set to 0 , width and depth set to 10.
+	//properties array is initialized here as well.
+	
+	public ManagementCompany() {
+		name = "";
+		taxID = "";
+		mgmFeePer = 0;
+		plot = new Plot(0, 0, MGMT_WIDTH, MGMT_DEPTH);
+		properties = new Property[MAX_PROPERTY];
+		count = 0;
+	}
+	
+	/*Constructor Creates a ManagementCompany object using the passed information.
+plot is set to a Plot with x, y set to 0 , width and depth set to 10
+properties array is initialized here as well
+*/
+	
+	public ManagementCompany(String companyName, String id, double fee) {
+		name = companyName;
+		taxID = id;
+		mgmFeePer = fee;
+		plot = new Plot(0, 0, MGMT_WIDTH, MGMT_DEPTH);
+		properties = new Property[MAX_PROPERTY];
+		count = 0;
+	}
+	
+	/*
+	 * Constructor Creates a ManagementCompany object using the passed information.
+	 */
+	
+	public ManagementCompany(String companyName, String id, double fee, int x, int y, int width, int depth) {
+		name = companyName;
+		taxID = id;
+		mgmFeePer = fee;
+		plot = new Plot(x, y, width, depth);
+		properties = new Property[MAX_PROPERTY];
+		count = 0;
+	}
+	
+	/*
+	 *  Copy Constructor that creates a ManagementCompany object from another ManagementCompany object
+	 */
+	
+	public ManagementCompany(ManagementCompany company) {
+		name = company.name;
+		taxID = company.taxID;
+		mgmFeePer = company.mgmFeePer;
+		plot = company.plot;
+		properties = company.properties;
+		count = company.count;
+	}
+	
+	/*
+	 * Although these getters and setters are not included in the UMLs provided by the assignment
+	 * they are needed because the GUI calls for "getName" and "getPlot", so therefore I created
+	 * a setter and getter for each variable just in case.
+	 */
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setTaxID(String taxID) {
+		this.taxID = taxID;
+	}
+
+	public void setMgmFee(double mgmFeePer) {
+		this.mgmFeePer = mgmFeePer;
+	}
+
+	public void setPlot(Plot plot) {
+		this.plot = new Plot(plot);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getTaxID() {
+		return taxID;
+	}
+
+	public double getMgmFee() {
+		return mgmFeePer;
+	}
+
+	public Plot getPlot() {
+		return new Plot(plot);
+	}	
+	
+	/*
+	 * Creates a property object by copying from another property and adds it to the "properties" array.
+	 */
+	
+	public int addProperty(Property property) {
+		if(count == MAX_PROPERTY) {
+			return -1;
+		}
+		
+		if(property == null) {
+			return -2;
+		}
+		
+		if(!plot.encompasses(property.getPlot())) {
+			return -3;
+		}
+		
+		for(int i = 0; i < count; i++) {
+			if(property.getPlot().overlaps(properties[i].getPlot())) {
+				return -4;
+			}
+		}
+		
+		Property prop = new Property(property);
+		
+		properties[count] = prop;
+		count++;
+		
+		return count-1;
+		
+	}
+	
+	/*
+	 * Creates a property object with a default plot and adds it to the "properties" array.
+	 */
+	
+	public int addProperty(String propertyName, String city, double rent, String ownerName) {
+		if(count == MAX_PROPERTY) {
+			return -1;
+		}
+		
+		Property prop = new Property(propertyName, city, rent, ownerName);
+		properties[count] = prop;
+		count++;
+		
+		return count-1;
+	}
+	
+	/*
+	 * Creates a property object and adds it to the "properties" array.
+return -1 if the array is full ,
+-2 if the Property object is null
+-3 if if management company does not encompass the property plot
+-4 if property plot overlaps ANY of properties in array
+otherwise return the index of the array where the property was added.
+	 */
+	
+	public int addProperty(String propertyName, String city, double rent, String ownerName, int x, int y, int width, int depth) {
+		if(count == MAX_PROPERTY) {
+			return -1;
+		}
+		
+		Property prop = new Property(propertyName, city, rent, ownerName, x, y, width, depth);
+		
+		if(!plot.encompasses(prop.getPlot())) {
+			return -3;
+		}
+		
+		for(int i = 0; i < count; i++) {
+			if(properties[i].getPlot().overlaps(prop.getPlot())) {
+				return -4;
+			}
+		}
+		
+		properties[count] = prop;
+		count++;
+		
+		return count-1;
+	}
+	
+	/*
+	 * Displays the information of the property at index i
+	 */
+	
+	public String displayPropertyAtIndex(int i) {
+		return properties[i].toString();
+	}
+	
+	/*
+	 * Return the MAX_PROPERTY constant that represents the size of the "properties" array.
+	 */
+	
+	public int getMAX_PROPERTY() {
+		return MAX_PROPERTY;
+	}
+	
+	/*
+	 *  This method finds a property within the properties array that has the maximum rent amount and returns the rent amount.
+	 */
+	
+	public double maxRentProp() {
+		double max = properties[maxRentPropertyIndex()].getRentAmount();
+		return max;
+	}
+	
+	/*
+	 *  This method finds the index of the property with the maximum rent amount.
+	 */
+	
+	public int maxRentPropertyIndex() {
+		int index = 0;
+		double highest = properties[0].getRentAmount();
+		
+		for(int i = 1; i < count; i++) {
+			if(properties[i].getRentAmount() > highest) {
+				highest = properties[i].getRentAmount();
+				index = i;
+			}
+		}
+		
+		return index;
+	}
+	
+	/*
+	 * Displays the information of all the properties in the "properties" array.
+	 */
+	
+	public String toString() {
+		String message;
+		
+		message = "List of properties for " + name + ", taxID: " + taxID;
+		message += "\n_____________________________________________\n";
+		
+		for(int i = 0; i < count; i++) {
+			message += properties[i].toString();
+			message += "\n";
+		}
+		
+		message += "_____________________________________________\n";
+		double totalMNGMFee = (totalRent()*mgmFeePer)/100;
+		
+		message += "Total Management Fee: " + totalMNGMFee;
+		
+		return message;
+	}
+	
+	/*
+	 * This method accesses each "Property" object within the array "properties" and sums up the property rent and returns the total amount.
+	 */
+	
+	public double totalRent() {
+		double total = 0;
+		
+		for(int i = 0; i < count; i++) {
+			total += properties[i].getRentAmount();
+		}
+		
+		return total;
+	}
+}
